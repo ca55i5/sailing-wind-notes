@@ -96,6 +96,20 @@ a{color:var(--sea)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .pts{margin:0;padding-left:1.2em}.pts li{margin:3px 0}.q .tt{font-weight:600;margin-bottom:2px}
 .back{font-size:13px;color:var(--muted);text-decoration:none}.back:hover{text-decoration:underline}
+.c-form{display:grid;gap:8px}
+.c-form input,.c-form textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+.c-form input:focus,.c-form textarea:focus{outline:2px solid var(--sea);outline-offset:-1px}
+.c-form .c-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.c-row{display:flex;align-items:center;gap:12px}
+.c-form button{font:inherit;font-weight:700;background:var(--sea);color:#fff;border:0;border-radius:8px;padding:6px 20px;cursor:pointer}
+.c-form button:disabled{opacity:.5;cursor:default}
+.c-msg{font-size:13px;color:var(--muted)}
+.c-list{margin-top:16px;display:grid;gap:10px}
+.c-item{border-top:1px solid var(--line);padding-top:10px}
+.c-item p{margin:2px 0 0;color:var(--ink2);overflow-wrap:anywhere}
+.c-head{display:flex;gap:10px;align-items:baseline;font-size:14px}
+.c-head .mono{font-size:12px;color:var(--muted)}
+.c-empty{color:var(--muted);font-size:14px}
 </style>
 
 <div class="wrap">
@@ -207,6 +221,23 @@ a{color:var(--sea)}
     <li>地形はOpen-Meteoの標高データで、港の沖から16方位に100km先まで読んだ。</li>
   </ul>
 </section>
+
+<section id="comments" data-page="colombo">
+  <div>
+    <h2>コメント</h2>
+    <p class="sub">走ってみた感想、合ってた・外れたの報告、知ってる地元の風のクセなど。名前はニックネームでOK。</p>
+  </div>
+  <div class="panel">
+    <form class="c-form" autocomplete="off">
+      <input name="name" maxlength="30" placeholder="名前（ニックネーム）" aria-label="名前" required>
+      <textarea name="text" maxlength="500" rows="3" placeholder="コメント（500字まで）" aria-label="コメント" required></textarea>
+      <input name="website" tabindex="-1" aria-hidden="true" class="c-hp">
+      <div class="c-row"><button type="submit">送信</button><span class="c-msg" role="status"></span></div>
+    </form>
+    <div class="c-list" aria-live="polite"><p class="c-empty">読み込み中…</p></div>
+  </div>
+</section>
+<script type="module" src="comments.js"></script>
 
 <footer>
   <div>出典：ECMWF IFS（Open-Meteo Historical Weather API）／ Meteostat（コロンボ 43466）／ Yachting Association of Sri Lanka「First Capital Sailing Nationals 2025」／ The Morning「Navy Cup Sailing Regatta」（2023）／ Explore Sri Lanka「The Splendid Sport of Yacht Racing」／ コロンボ大学 修士論文「Two dimensional sea breeze &amp; land breeze model with application to Sri Lanka」（2004）／ Open-Meteo 標高API</div>

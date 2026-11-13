@@ -1,0 +1,18 @@
+rules_version = '2';
+// 風帳のコメント欄用。読むのは誰でも、書けるのは「新規投稿」だけ（編集・削除は管理画面から）。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /comments/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['page', 'name', 'text', 'createdAt'])
+        && request.resource.data.keys().hasAll(['page', 'name', 'text', 'createdAt'])
+        && request.resource.data.page in ['odo', 'hayama', 'enoshima', 'colombo']
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 30
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
