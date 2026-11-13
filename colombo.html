@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>コロンボ沖の風帳</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 一枚の「海面ノート」。左に読み方のルール、下に根拠のグラフ。カードは根拠ラベル付きのルールだけ */
+:root{
+  --bg:#f6f8f9; --surface:#ffffff; --ink:#0f1c24; --ink2:#43525c; --muted:#7a8892;
+  --line:#dde4e8; --base:#b9c4ca;
+  --sea:#2a78d6; --sea-soft:#dbe8f8; --warm:#eb6834; --warm-soft:#fbe3d8;
+  --obs:#1baf7a; --model:#2a78d6; --exp:#c27a00;
+  --obs-bg:#e1f5ec; --model-bg:#e3eefb; --exp-bg:#fbefd6;
+  --f-body:"Zen Kaku Gothic New",system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1418; --surface:#172027; --ink:#eef2f4; --ink2:#bac6cd; --muted:#87949c;
+  --line:#26323a; --base:#3a4851;
+  --sea:#3987e5; --sea-soft:#1b3047; --warm:#d95926; --warm-soft:#3d2418;
+  --obs:#199e70; --model:#3987e5; --exp:#d8a23a;
+  --obs-bg:#123328; --model-bg:#162b44; --exp-bg:#3a2d12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1418; --surface:#172027; --ink:#eef2f4; --ink2:#bac6cd; --muted:#87949c;
+  --line:#26323a; --base:#3a4851;
+  --sea:#3987e5; --sea-soft:#1b3047; --warm:#d95926; --warm-soft:#3d2418;
+  --obs:#199e70; --model:#3987e5; --exp:#d8a23a;
+  --obs-bg:#123328; --model-bg:#162b44; --exp-bg:#3a2d12; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(28px,5vw,42px);font-weight:900;letter-spacing:.02em}
+h2{font-size:22px;font-weight:700;margin-bottom:6px}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.lede{color:var(--ink2);max-width:62ch;margin-top:12px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:grid;gap:8px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.legend-src{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;color:var(--ink2);font-size:13px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap;letter-spacing:.03em}
+.tag.obs{background:var(--obs-bg);color:var(--ink)} .tag.obs::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--obs)}
+.tag.model{background:var(--model-bg);color:var(--ink)} .tag.model::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--model)}
+.tag.exp{background:var(--exp-bg);color:var(--ink)} .tag.exp::before{content:"";width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--exp)}
+section{margin-top:44px;display:grid;gap:16px}
+.sub{color:var(--ink2);max-width:68ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px;align-content:start;min-width:0}
+.rule .when{font-size:12.5px;color:var(--muted);font-weight:500}
+.rule .what{font-size:16.5px;font-weight:700;line-height:1.5}
+.rule .num{font-family:var(--f-mono);font-size:13px;color:var(--ink2)}
+.rule .tags{display:flex;gap:6px;flex-wrap:wrap}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.roses{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.rose-card{display:grid;gap:4px;justify-items:center;text-align:center}
+.rose-card .cap{font-size:13px;color:var(--ink2)}
+svg text{fill:var(--ink2);font-family:var(--f-body)}
+svg .ax{stroke:var(--base)} svg .grid{stroke:var(--line)}
+.keys{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink2)}
+.key{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:700;color:var(--ink2);font-size:12.5px;white-space:nowrap}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.quotes{display:grid;gap:10px}
+.q{border-left:3px solid var(--exp);padding:4px 0 4px 14px;display:grid;gap:2px}
+.q .src{font-size:12px;color:var(--muted)}
+.strip{display:grid;grid-template-columns:repeat(15,minmax(34px,1fr));gap:2px;min-width:560px}
+.cell{display:grid;justify-items:center;gap:2px;padding:8px 0;border-radius:6px}
+.cell .h{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.cell .v{font-family:var(--f-mono);font-size:11px;color:var(--ink2)}
+.cell svg{display:block}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:6px;z-index:20;max-width:240px;line-height:1.5}
+.note{font-size:13px;color:var(--ink2);max-width:72ch}
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:4px;color:var(--ink2);font-size:14px}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:grid;gap:4px}
+a{color:var(--sea)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;background:var(--bg)}
+.seg button{font:inherit;font-size:14px;font-weight:700;border:0;background:transparent;color:var(--ink2);padding:5px 16px;border-radius:999px;cursor:pointer;min-height:34px}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.lk td,.lk th{vertical-align:middle}
+.lk .dw{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.lk .dw svg{flex:none}
+.lk .ws{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:6px;white-space:nowrap}
+.badge.r{background:var(--warm-soft);color:var(--ink)} .badge.l{background:var(--sea-soft);color:var(--ink)} .badge.z{background:var(--bg);color:var(--ink2)}
+.bar{display:inline-block;height:8px;border-radius:4px;background:var(--sea);vertical-align:middle;margin-right:6px}
+.ok{color:var(--obs);font-weight:700} .ng{color:var(--warm);font-weight:700}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pts{margin:0;padding-left:1.2em}.pts li{margin:3px 0}.q .tt{font-weight:600;margin-bottom:2px}
+.back{font-size:13px;color:var(--muted);text-decoration:none}.back:hover{text-decoration:underline}
+</style>
+
+<div class="wrap">
+<header>
+  <a class="back" href="./">← 海域一覧</a>
+  <div class="eyebrow">スリランカ西岸 ／ コロンボ港・市街の沖 ／ 2017–2026</div>
+  <h1>コロンボ沖の風帳</h1>
+  <p class="lede">コロンボ沖の海面で、モンスーンの季節ごとにどの向きの風が吹くか、朝の陸風から昼の海風へどう入れ替わるか、陸から吹く風がどれだけ弱まり息が強くなるかをまとめた。季節は「北東季（12〜2月）」「中間①（3〜4月）」「南西季（5〜9月）」「中間②（10〜11月）」に分けた。風向はすべて「吹いてくる方向」。右に振れる＝時計回り（例：西→北西）。</p>
+  <div class="legend-src">
+    <span><span class="tag obs">実測</span> コロンボ気象台（陸上、海岸から約1km）の毎時観測</span>
+    <span><span class="tag model">モデル統計</span> ECMWF 9kmモデル（IFS）の約10年分・毎時</span>
+    <span><span class="tag exp">経験談</span> スリランカのレガッタ報告・論文</span>
+  </div>
+</header>
+
+<section id="lookup">
+  <div>
+    <h2>朝9時の風で午後を読む</h2>
+    <p class="sub">コロンボ沖で朝9時に吹いている風の向きから、12時・15時の風を引く早見表。2017〜2025年の同じ季節・同じ朝の風だった日の集計（15日未満の組み合わせは省略）。<span class="tag model">モデル統計</span></p>
+  </div>
+  <div class="panel">
+    <div class="seg" id="seasonSeg" role="tablist" aria-label="季節"></div>
+    <div class="scroll" style="margin-top:12px"><table id="lookupTable" class="lk"></table></div>
+    <div class="note" style="margin-top:10px"><ul class="pts"><li>振れ＝9時→15時の中央値。＋は右（時計回り）</li><li>右／左％＝10°以上その向きに振れた日の割合</li><li>4m/s以上＝15時に4m/s以上吹いていた日の割合</li><li>朝の風が1.5m/s未満の日は「ほぼ無風」</li></ul></div>
+  </div>
+</section>
+
+<section id="rules">
+  <div>
+    <h2>読み方のルール</h2>
+    <p class="sub">数字はコロンボ沖（北緯6.92°・東経79.76°の格子点、港の西 約10km）の日中の値。時刻はスリランカ時間。「％」はその傾向になった日や時間の割合。</p>
+  </div>
+  <div class="rules" id="ruleList"></div>
+</section>
+
+
+
+<section id="season">
+  <div>
+    <h2>季節ごとの風向と強さ</h2>
+    <p class="sub">日中9〜17時。花びらの長さが頻度、色の濃さが風速。花びらは「吹いてくる方向」に伸びる。</p>
+  </div>
+  <div class="panel">
+    <div class="roses" id="roses"></div>
+    <div class="keys" id="roseKeys" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<section id="seabreeze">
+  <div>
+    <h2>海風の入り方（穏やかな日）</h2>
+    <p class="sub">朝の沖50kmの風が弱く、昼にコロンボ沖で3m/s以上吹いた日の平均（<span id="sbN"></span>日）。矢印は風が流れていく向き、数字は風速m/s。</p>
+  </div>
+  <div class="panel">
+    <div class="scroll"><div class="strip" id="sbStrip"></div></div>
+    <div class="note" style="margin-top:12px" id="sbNote"></div>
+  </div>
+</section>
+
+<section id="shelter">
+  <div>
+    <h2>どの向きの風が岸近くで弱まるか</h2>
+    <p class="sub">沖50km（東経79.38°）で4m/s以上吹いているとき、同じ時刻の沖10kmと岸寄りの風速が何割になるか。東・東南東の風は日中4m/s以上の時間が少なく、比を出していない。短いほど陸や山に遮られている。</p>
+  </div>
+  <div class="panel">
+    <div class="keys" id="shelterKeys"></div>
+    <div class="scroll"><svg id="shelterChart" role="img" aria-label="外の風向別の風速比"></svg></div>
+  </div>
+  <div class="panel scroll">
+    <table id="terrainTable"></table>
+  </div>
+</section>
+
+<section id="build">
+  <div>
+    <h2>吹き上がるときの風向</h2>
+    <p class="sub">日中、3時間で3m/s以上強まったとき（<span id="buildN"></span>回）に、強まった後の風がどこから吹いていたか。</p>
+  </div>
+  <div class="panel scroll"><svg id="buildChart" role="img" aria-label="季節別の吹き上がり風向"></svg></div>
+</section>
+
+<section id="check">
+  <div>
+    <h2>モデルと実測の答え合わせ</h2>
+    <p class="sub">コロンボ気象台（陸上、海岸から約1km）の毎時観測と、モデルの沿岸格子を同じ時刻で並べた（2018〜2025年、観測が欠けた期間あり）。気象台は市街の中なので風速は弱く出る。ここで見るのは<b>風向と切り替わる時刻</b>。<span class="tag obs">実測</span> <span class="tag model">モデル統計</span></p>
+  </div>
+  <div class="panel">
+    <div class="seg" id="checkSeg" role="tablist" aria-label="季節"></div>
+    <div class="scroll" style="margin-top:12px"><div id="checkStrip"></div></div>
+    <div class="note" id="checkNote" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section id="voices">
+  <div>
+    <h2>現場の記録（要約）</h2>
+    <p class="sub">コロンボ沖の風を書いた公開の記録は少なく、見つかったのは次の4件だけ。小戸や葉山ほど現場の裏付けは厚くない。</p>
+  </div>
+  <div class="quotes" id="quotes"></div>
+</section>
+
+<section id="limits">
+  <h2>データの出どころと限界</h2>
+  <ul class="plain">
+    <li>主データはECMWFの全球モデルIFS（約9km格子）の過去データ（Open-Meteo経由、2017年1月〜2026年11月、毎時）。季節の集計と早見表は2017〜2025年。気象庁MSMはスリランカを含まない。</li>
+    <li>格子が粗いので、コロンボ港の防波堤の中、ポートシティの埋立地の陰、クロウ島の前などの細かい違いは出ない。「岸寄り」の格子（東経79.91°）は陸を含むため、陸から吹く風の弱まり方は大きめに出ている可能性がある。</li>
+    <li>実測はコロンボ気象台（Meteostat 43466）。市街の中で風速が弱く出るので、風向と時刻の確認に使った。観測時刻は世界時を5時間30分ずらし、毎時に切り捨てて合わせた。</li>
+    <li>熱帯なので「寒冷前線」はほとんどない。気温が急に下がるのは主にスコール（にわか雨）で、件数は少ない。</li>
+    <li>地形はOpen-Meteoの標高データで、港の沖から16方位に100km先まで読んだ。</li>
+  </ul>
+</section>
+
+<footer>
+  <div>出典：ECMWF IFS（Open-Meteo Historical Weather API）／ Meteostat（コロンボ 43466）／ Yachting Association of Sri Lanka「First Capital Sailing Nationals 2025」／ The Morning「Navy Cup Sailing Regatta」（2023）／ Explore Sri Lanka「The Splendid Sport of Yacht Racing」／ コロンボ大学 修士論文「Two dimensional sea breeze &amp; land breeze model with application to Sri Lanka」（2004）／ Open-Meteo 標高API</div>
+  <div>作成 2026-11-13。風向は吹いてくる方向。時刻はスリランカ時間。</div>
+</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const R = {"meta": {"main": {"latitude": 6.924429, "longitude": 79.75548, "elevation": 0.0}, "coast": {"latitude": 6.924429, "longitude": 79.90725, "elevation": 0.0}, "south": {"latitude": 6.8541303, "longitude": 79.91576, "elevation": 0.0}, "north": {"latitude": 7.0650263, "longitude": 79.890205, "elevation": 0.0}, "off25": {"latitude": 6.924429, "longitude": 79.60371, "elevation": 0.0}, "outer": {"latitude": 6.924429, "longitude": 79.37605, "elevation": 0.0}}, "period": ["2017-01-01 05:00:00", "2026-11-12 23:00:00"], "n_hours": 86467, "rose_day": {"北東季": {"dirs": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], "bins": ["0-2", "2-4", "4-6", "6-8", "8-10", "10+"], "pct": [[0.89, 2.59, 3.58, 5.03, 1.82, 0.33], [0.69, 2.84, 5.1, 6.19, 2.86, 0.19], [0.82, 2.37, 2.08, 0.78, 0.18, 0.06], [0.57, 1.02, 0.4, 0.01, 0.0, 0.0], [0.52, 0.28, 0.01, 0.0, 0.0, 0.0], [0.38, 0.2, 0.03, 0.0, 0.0, 0.0], [0.5, 0.33, 0.03, 0.0, 0.0, 0.0], [0.38, 0.45, 0.1, 0.08, 0.04, 0.01], [0.36, 0.57, 0.52, 0.15, 0.11, 0.0], [0.42, 1.16, 0.7, 0.22, 0.06, 0.0], [0.7, 1.99, 1.03, 0.27, 0.0, 0.0], [0.71, 2.31, 1.28, 0.32, 0.17, 0.0], [1.02, 3.2, 1.77, 0.28, 0.1, 0.0], [0.87, 3.7, 2.82, 0.38, 0.11, 0.03], [0.85, 2.99, 3.75, 2.42, 1.05, 0.19], [0.78, 2.32, 2.95, 4.38, 5.66, 1.56]], "mean_ws": [5.71, 5.94, 4.15, 2.85, 1.97, 1.74, 1.9, 3.02, 4.03, 3.68, 3.48, 3.69, 3.48, 3.79, 5.05, 6.86]}, "中間①": {"dirs": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], "bins": ["0-2", "2-4", "4-6", "6-8", "8-10", "10+"], "pct": [[0.69, 0.69, 0.33, 0.15, 0.15, 0.0], [0.53, 0.49, 0.16, 0.2, 0.13, 0.0], [0.49, 0.55, 0.11, 0.09, 0.0, 0.0], [0.42, 0.27, 0.02, 0.0, 0.0, 0.0], [0.47, 0.13, 0.02, 0.0, 0.0, 0.0], [0.44, 0.2, 0.04, 0.0, 0.0, 0.0], [0.69, 0.6, 0.13, 0.0, 0.0, 0.0], [0.84, 1.42, 0.42, 0.02, 0.02, 0.0], [1.18, 2.6, 1.95, 0.27, 0.04, 0.0], [1.02, 5.05, 5.21, 0.97, 0.0, 0.0], [1.44, 8.34, 7.67, 1.26, 0.02, 0.0], [1.55, 8.07, 8.27, 1.71, 0.02, 0.0], [1.35, 6.81, 6.17, 1.38, 0.0, 0.0], [1.09, 4.46, 2.79, 0.6, 0.0, 0.0], [1.0, 2.64, 1.24, 0.33, 0.09, 0.0], [0.71, 1.06, 0.26, 0.11, 0.31, 0.07]], "mean_ws": [3.27, 3.5, 2.64, 1.83, 1.57, 1.8, 2.26, 2.73, 3.4, 4.03, 3.95, 4.06, 3.95, 3.65, 3.38, 3.83]}, "南西季": {"dirs": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], "bins": ["0-2", "2-4", "4-6", "6-8", "8-10", "10+"], "pct": [[0.01, 0.04, 0.02, 0.0, 0.0, 0.0], [0.01, 0.0, 0.01, 0.0, 0.0, 0.0], [0.02, 0.0, 0.0, 0.0, 0.0, 0.0], [0.01, 0.0, 0.0, 0.0, 0.0, 0.0], [0.01, 0.03, 0.01, 0.0, 0.0, 0.0], [0.03, 0.04, 0.0, 0.0, 0.0, 0.0], [0.07, 0.08, 0.0, 0.0, 0.0, 0.0], [0.09, 0.12, 0.03, 0.06, 0.0, 0.0], [0.07, 0.35, 0.52, 0.39, 0.08, 0.0], [0.08, 0.84, 3.24, 2.64, 0.57, 0.02], [0.14, 1.29, 7.84, 11.01, 3.62, 0.51], [0.06, 1.25, 10.12, 23.64, 10.6, 1.94], [0.11, 0.57, 3.06, 7.36, 4.72, 1.18], [0.08, 0.22, 0.36, 0.34, 0.06, 0.04], [0.06, 0.08, 0.14, 0.01, 0.0, 0.0], [0.03, 0.07, 0.01, 0.0, 0.0, 0.0]], "mean_ws": [3.26, 2.55, 1.22, 0.92, 2.54, 2.3, 2.2, 3.39, 5.12, 5.78, 6.48, 7.08, 7.3, 5.47, 3.79, 2.69]}, "中間②": {"dirs": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], "bins": ["0-2", "2-4", "4-6", "6-8", "8-10", "10+"], "pct": [[0.69, 1.11, 1.45, 1.26, 0.66, 0.21], [0.53, 1.07, 0.71, 0.84, 0.3, 0.11], [0.6, 0.66, 0.32, 0.08, 0.02, 0.0], [0.43, 0.28, 0.15, 0.02, 0.0, 0.0], [0.45, 0.26, 0.02, 0.0, 0.0, 0.0], [0.32, 0.21, 0.02, 0.02, 0.0, 0.0], [0.51, 0.47, 0.11, 0.04, 0.06, 0.0], [0.34, 0.81, 0.39, 0.21, 0.08, 0.09], [0.77, 1.43, 1.52, 0.77, 0.21, 0.09], [0.71, 2.4, 3.02, 2.12, 0.26, 0.02], [1.03, 4.39, 4.77, 2.27, 0.56, 0.08], [1.11, 4.82, 6.14, 5.46, 1.99, 0.3], [1.48, 4.92, 5.22, 3.51, 1.3, 0.32], [1.07, 3.72, 2.4, 0.69, 0.24, 0.17], [0.9, 2.2, 1.65, 0.88, 0.17, 0.15], [0.79, 1.48, 1.5, 1.76, 0.84, 0.51]], "mean_ws": [5.25, 4.82, 2.95, 2.52, 1.72, 2.0, 2.84, 4.06, 4.34, 4.69, 4.56, 5.34, 4.9, 4.09, 4.28, 5.67]}, "通年": {"dirs": ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], "bins": ["0-2", "2-4", "4-6", "6-8", "8-10", "10+"], "pct": [[0.45, 0.94, 1.17, 1.45, 0.57, 0.11], [0.35, 0.95, 1.38, 1.67, 0.76, 0.06], [0.39, 0.77, 0.57, 0.22, 0.05, 0.02], [0.29, 0.34, 0.12, 0.01, 0.0, 0.0], [0.29, 0.14, 0.01, 0.0, 0.0, 0.0], [0.23, 0.13, 0.02, 0.0, 0.0, 0.0], [0.35, 0.29, 0.05, 0.01, 0.01, 0.0], [0.33, 0.53, 0.17, 0.08, 0.02, 0.02], [0.44, 0.96, 0.93, 0.38, 0.1, 0.02], [0.43, 1.88, 2.92, 1.68, 0.3, 0.01], [0.64, 3.16, 5.66, 5.33, 1.63, 0.23], [0.64, 3.25, 7.02, 11.3, 4.87, 0.87], [0.76, 2.98, 3.63, 4.01, 2.24, 0.56], [0.6, 2.35, 1.7, 0.45, 0.09, 0.05], [0.55, 1.56, 1.45, 0.79, 0.3, 0.07], [0.45, 1.01, 1.01, 1.37, 1.56, 0.47]], "mean_ws": [5.43, 5.68, 3.81, 2.61, 1.84, 1.86, 2.31, 3.23, 4.12, 4.89, 5.58, 6.38, 5.79, 3.97, 4.54, 6.38]}}, "seabreeze": {"n_days": 400, "by_month": {"1": 26, "2": 43, "3": 115, "4": 90, "5": 18, "7": 1, "9": 3, "10": 33, "11": 40, "12": 31}, "hourly": [{"h": 6, "dir": 108.6, "R": 0.58, "ws": 1.87, "dir_q25": null}, {"h": 7, "dir": 103.0, "R": 0.59, "ws": 2.0, "dir_q25": null}, {"h": 8, "dir": 102.6, "R": 0.48, "ws": 2.03, "dir_q25": null}, {"h": 9, "dir": 136.5, "R": 0.14, "ws": 1.86, "dir_q25": null}, {"h": 10, "dir": 260.9, "R": 0.45, "ws": 2.02, "dir_q25": null}, {"h": 11, "dir": 264.8, "R": 0.71, "ws": 2.67, "dir_q25": null}, {"h": 12, "dir": 265.1, "R": 0.8, "ws": 3.36, "dir_q25": null}, {"h": 13, "dir": 263.2, "R": 0.84, "ws": 3.98, "dir_q25": null}, {"h": 14, "dir": 261.4, "R": 0.84, "ws": 4.39, "dir_q25": null}, {"h": 15, "dir": 258.8, "R": 0.8, "ws": 4.26, "dir_q25": null}, {"h": 16, "dir": 255.2, "R": 0.73, "ws": 3.99, "dir_q25": null}, {"h": 17, "dir": 268.0, "R": 0.62, "ws": 3.85, "dir_q25": null}, {"h": 18, "dir": 270.9, "R": 0.46, "ws": 3.55, "dir_q25": null}, {"h": 19, "dir": 258.6, "R": 0.26, "ws": 3.36, "dir_q25": null}, {"h": 20, "dir": 207.3, "R": 0.15, "ws": 3.14, "dir_q25": null}], "shift_11_16": {"median": -10.0, "pct_right": 39.25, "q25": -33.0, "q75": 16.0}}, "build": {"n": 1083, "dir_pct": [5.54, 4.43, 1.75, 0.37, 0.0, 0.09, 0.55, 1.29, 3.05, 5.54, 8.96, 14.59, 12.28, 6.28, 13.76, 21.51], "by_season": {"北東季": [8.33, 7.22, 2.78, 0.0, 0.0, 0.0, 0.19, 0.93, 2.22, 3.7, 3.52, 2.78, 3.15, 3.89, 23.15, 38.15], "中間①": [1.84, 2.3, 0.0, 0.0, 0.0, 0.46, 0.92, 0.92, 3.69, 8.29, 11.52, 17.97, 29.49, 14.75, 5.53, 2.3], "南西季": [0.0, 0.0, 0.0, 0.6, 0.0, 0.0, 0.6, 0.0, 1.2, 4.79, 22.75, 46.11, 21.56, 2.4, 0.0, 0.0], "中間②": [6.92, 2.52, 2.52, 1.89, 0.0, 0.0, 1.26, 4.4, 6.92, 8.81, 9.43, 16.98, 10.06, 6.92, 7.55, 13.84]}, "shift_median": 1.0, "pct_right": 50.046168051708214, "top_pairs": [{"from": "NNW", "to": "NNW", "n": 64}, {"from": "N", "to": "NNW", "n": 63}, {"from": "N", "to": "NW", "n": 50}, {"from": "NW", "to": "NNW", "n": 40}, {"from": "SW", "to": "WSW", "n": 39}, {"from": "WSW", "to": "WSW", "n": 38}, {"from": "W", "to": "W", "n": 35}, {"from": "NNW", "to": "NW", "n": 34}, {"from": "W", "to": "WSW", "n": 27}, {"from": "SW", "to": "SW", "n": 25}, {"from": "WSW", "to": "W", "n": 23}, {"from": "NNE", "to": "NW", "n": 22}]}, "cooling": {"all": {"n": 874, "median": 3.5, "pct_right": 53.5, "pct_right_gt30": 28.8, "pct_left_gt30": 28.4, "ws_change": -0.28}, "by_from": {"N": {"n": 94, "median": 32.5, "pct_right": 79.8, "pct_right_gt30": 54.3, "pct_left_gt30": 8.5, "ws_change": 0.25}, "NNE": {"n": 131, "median": 21.0, "pct_right": 84.0, "pct_right_gt30": 40.5, "pct_left_gt30": 4.6, "ws_change": -0.27}, "NE": {"n": 48, "median": 4.5, "pct_right": 60.4, "pct_right_gt30": 33.3, "pct_left_gt30": 4.2, "ws_change": 0.1}, "S": {"n": 48, "median": -24.0, "pct_right": 33.3, "pct_right_gt30": 8.3, "pct_left_gt30": 45.8, "ws_change": -0.17}, "SSW": {"n": 47, "median": -27.0, "pct_right": 29.8, "pct_right_gt30": 8.5, "pct_left_gt30": 48.9, "ws_change": -0.05}, "SW": {"n": 116, "median": -5.5, "pct_right": 40.5, "pct_right_gt30": 7.8, "pct_left_gt30": 34.5, "ws_change": -0.58}, "WSW": {"n": 125, "median": -19.0, "pct_right": 27.2, "pct_right_gt30": 5.6, "pct_left_gt30": 43.2, "ws_change": -0.93}, "W": {"n": 82, "median": -22.5, "pct_right": 41.5, "pct_right_gt30": 32.9, "pct_left_gt30": 48.8, "ws_change": -0.75}, "WNW": {"n": 47, "median": 17.0, "pct_right": 61.7, "pct_right_gt30": 44.7, "pct_left_gt30": 36.2, "ws_change": 0.17}, "NW": {"n": 36, "median": 39.0, "pct_right": 63.9, "pct_right_gt30": 52.8, "pct_left_gt30": 27.8, "ws_change": -0.24}, "NNW": {"n": 38, "median": 14.0, "pct_right": 57.9, "pct_right_gt30": 44.7, "pct_left_gt30": 23.7, "ws_change": 0.23}}, "front": {"n": 57, "median": -80.0, "pct_right": 24.6, "pct_right_gt30": 21.1, "pct_left_gt30": 68.4, "ws_change": -0.88}, "front_to_pct": [0.0, 1.75, 10.53, 3.51, 12.28, 12.28, 12.28, 15.79, 8.77, 5.26, 3.51, 5.26, 1.75, 5.26, 0.0, 1.75]}, "evening": {"n": 713, "median_shift": 6.0, "pct_right": 60.4, "median_dt": 0.3, "median_dws": -0.54}, "spatial": {"main": [{"n": 2282, "ratio": 0.88, "dev": -18.0, "gust_factor": 1.34}, {"n": 2500, "ratio": 0.7, "dev": -7.0, "gust_factor": 1.45}, {"n": 885, "ratio": 0.51, "dev": -4.0, "gust_factor": 1.74}, {"n": 61, "ratio": 0.51, "dev": 16.0, "gust_factor": 2.02}, null, null, {"n": 58, "ratio": 0.62, "dev": 3.0, "gust_factor": 1.72}, {"n": 90, "ratio": 0.87, "dev": 14.5, "gust_factor": 1.42}, {"n": 245, "ratio": 1.13, "dev": 1.0, "gust_factor": 1.38}, {"n": 863, "ratio": 1.06, "dev": -5.0, "gust_factor": 1.37}, {"n": 3193, "ratio": 0.95, "dev": -6.0, "gust_factor": 1.37}, {"n": 8464, "ratio": 0.89, "dev": -4.0, "gust_factor": 1.36}, {"n": 4289, "ratio": 0.86, "dev": -2.0, "gust_factor": 1.35}, {"n": 480, "ratio": 0.94, "dev": -1.0, "gust_factor": 1.42}, {"n": 299, "ratio": 1.05, "dev": -5.0, "gust_factor": 1.37}, {"n": 859, "ratio": 1.0, "dev": -16.0, "gust_factor": 1.35}], "coast": [{"n": 2282, "ratio": 0.47, "dev": -20.0, "gust_factor": 2.35}, {"n": 2500, "ratio": 0.38, "dev": -2.0, "gust_factor": 2.55}, {"n": 885, "ratio": 0.26, "dev": -3.0, "gust_factor": 3.11}, {"n": 61, "ratio": 0.28, "dev": 33.0, "gust_factor": 3.79}, null, null, {"n": 58, "ratio": 0.3, "dev": 10.5, "gust_factor": 3.22}, {"n": 90, "ratio": 0.49, "dev": 25.0, "gust_factor": 2.7}, {"n": 245, "ratio": 0.69, "dev": 8.0, "gust_factor": 2.35}, {"n": 863, "ratio": 0.72, "dev": -2.0, "gust_factor": 2.21}, {"n": 3193, "ratio": 0.64, "dev": -6.0, "gust_factor": 2.26}, {"n": 8464, "ratio": 0.58, "dev": -5.0, "gust_factor": 2.35}, {"n": 4289, "ratio": 0.57, "dev": -3.0, "gust_factor": 2.3}, {"n": 480, "ratio": 0.62, "dev": -5.0, "gust_factor": 2.47}, {"n": 299, "ratio": 0.71, "dev": -13.0, "gust_factor": 2.35}, {"n": 859, "ratio": 0.62, "dev": -28.0, "gust_factor": 2.23}], "south": [{"n": 2282, "ratio": 0.45, "dev": -25.0, "gust_factor": 2.37}, {"n": 2500, "ratio": 0.33, "dev": -5.0, "gust_factor": 2.6}, {"n": 885, "ratio": 0.23, "dev": -7.0, "gust_factor": 3.29}, {"n": 61, "ratio": 0.27, "dev": 44.0, "gust_factor": 3.66}, null, null, {"n": 58, "ratio": 0.32, "dev": 7.5, "gust_factor": 3.07}, {"n": 90, "ratio": 0.5, "dev": 16.5, "gust_factor": 2.64}, {"n": 245, "ratio": 0.68, "dev": 4.0, "gust_factor": 2.34}, {"n": 863, "ratio": 0.69, "dev": -3.0, "gust_factor": 2.21}, {"n": 3193, "ratio": 0.61, "dev": -6.0, "gust_factor": 2.3}, {"n": 8464, "ratio": 0.56, "dev": -3.0, "gust_factor": 2.36}, {"n": 4289, "ratio": 0.56, "dev": 0.0, "gust_factor": 2.33}, {"n": 480, "ratio": 0.63, "dev": -2.0, "gust_factor": 2.43}, {"n": 299, "ratio": 0.7, "dev": -11.0, "gust_factor": 2.34}, {"n": 859, "ratio": 0.59, "dev": -31.0, "gust_factor": 2.27}], "north": [{"n": 2282, "ratio": 0.51, "dev": -6.0, "gust_factor": 2.3}, {"n": 2500, "ratio": 0.48, "dev": 3.0, "gust_factor": 2.35}, {"n": 885, "ratio": 0.39, "dev": 2.0, "gust_factor": 2.6}, {"n": 61, "ratio": 0.32, "dev": 18.0, "gust_factor": 3.47}, null, null, {"n": 58, "ratio": 0.32, "dev": 16.0, "gust_factor": 3.4}, {"n": 90, "ratio": 0.51, "dev": 33.5, "gust_factor": 2.74}, {"n": 245, "ratio": 0.7, "dev": 13.0, "gust_factor": 2.33}, {"n": 863, "ratio": 0.74, "dev": 0.0, "gust_factor": 2.24}, {"n": 3193, "ratio": 0.68, "dev": -7.0, "gust_factor": 2.24}, {"n": 8464, "ratio": 0.62, "dev": -8.0, "gust_factor": 2.27}, {"n": 4289, "ratio": 0.6, "dev": -8.0, "gust_factor": 2.25}, {"n": 480, "ratio": 0.62, "dev": -10.0, "gust_factor": 2.42}, {"n": 299, "ratio": 0.73, "dev": -12.0, "gust_factor": 2.34}, {"n": 859, "ratio": 0.63, "dev": -18.0, "gust_factor": 2.25}], "off25": [{"n": 2282, "ratio": 0.91, "dev": -8.0, "gust_factor": 1.34}, {"n": 2500, "ratio": 0.86, "dev": -4.0, "gust_factor": 1.42}, {"n": 885, "ratio": 0.73, "dev": -1.0, "gust_factor": 1.54}, {"n": 61, "ratio": 0.7, "dev": 6.0, "gust_factor": 1.77}, null, null, {"n": 58, "ratio": 0.9, "dev": 3.0, "gust_factor": 1.49}, {"n": 90, "ratio": 0.95, "dev": 2.5, "gust_factor": 1.43}, {"n": 245, "ratio": 1.02, "dev": 0.0, "gust_factor": 1.4}, {"n": 863, "ratio": 0.96, "dev": -2.0, "gust_factor": 1.38}, {"n": 3193, "ratio": 0.93, "dev": -2.0, "gust_factor": 1.37}, {"n": 8464, "ratio": 0.91, "dev": -2.0, "gust_factor": 1.34}, {"n": 4289, "ratio": 0.91, "dev": -2.0, "gust_factor": 1.33}, {"n": 480, "ratio": 0.95, "dev": -2.0, "gust_factor": 1.4}, {"n": 299, "ratio": 0.99, "dev": -3.0, "gust_factor": 1.39}, {"n": 859, "ratio": 0.95, "dev": -9.0, "gust_factor": 1.34}]}, "speed_day": {"北東季": {"lt2": 10.5, "2to4": 28.3, "4to8": 46.7, "ge8": 14.5, "gust_factor": 1.44}, "中間①": {"lt2": 13.9, "2to4": 43.4, "4to8": 41.9, "ge8": 0.8, "gust_factor": 1.48}, "南西季": {"lt2": 0.9, "2to4": 5.0, "4to8": 70.8, "ge8": 23.3, "gust_factor": 1.36}, "中間②": {"lt2": 11.7, "2to4": 30.2, "4to8": 49.3, "ge8": 8.7, "gust_factor": 1.46}}, "gust_by_dir": [1.38, 1.44, 1.59, 1.64, 1.67, 1.48, 1.5, 1.46, 1.41, 1.4, 1.39, 1.36, 1.36, 1.41, 1.36, 1.33], "land_vs_sea": {"n": 17744, "sea_over_land_speed": 2.97, "dir_diff_median": 17.0, "pct_dir_diff_gt45": 6.8}, "extra": {"day_cool": {"n": 440, "median": 3.0, "right": 53.40909090909091}, "day_cool_by_from": {"N": {"n": 71, "med": -7.0, "right%": 49, "to": "NNW", "dws": 1.4}, "NNE": {"n": 46, "med": 20.0, "right%": 61, "to": "S", "dws": 0.5}, "SSW": {"n": 26, "med": 3.5, "right%": 54, "to": "SW", "dws": -0.6}, "SW": {"n": 54, "med": 5.0, "right%": 63, "to": "SW", "dws": -0.4}, "WSW": {"n": 78, "med": -5.0, "right%": 41, "to": "WSW", "dws": -1.1}, "W": {"n": 49, "med": 1.0, "right%": 51, "to": "W", "dws": -1.2}, "NNW": {"n": 38, "med": -6.5, "right%": 29, "to": "NNW", "dws": 2.3}}, "NE_morning_days": {"n": 389, "median_shift_9_15": -46.0, "left%": 77.37789203084833, "dws": 0.1299999999999999, "by_month_n": {"1": 133, "2": 121, "3": 23, "7": 1, "11": 22, "12": 89}}, "NW_monsoon_days": {"n": 273, "median_shift_9_15": -6.0, "right%": 18.681318681318682, "dws": 0.08000000000000007, "sd": 14.98952535946509}, "S_SW_days": {"n": 1502, "median_shift_9_15": 3.0, "right%": 60.852197070572565, "dws": 0.5999999999999996, "to15": {"WSW": 736, "SW": 469, "SSW": 152, "W": 99, "S": 34}}}, "terrain": {"N": {"first_land_km": 1, "max_m": 10.0, "max_at_km": 100, "profile": [[1, 3.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 4.0], [40, 0.0], [50, 7.0], [60, 2.0], [70, 7.0], [80, 8.0], [100, 10.0]]}, "NNE": {"first_land_km": 1, "max_m": 65.0, "max_at_km": 100, "profile": [[1, 3.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 4.0], [15, 6.0], [20, 10.0], [30, 14.0], [40, 30.0], [50, 45.0], [60, 45.0], [70, 50.0], [80, 49.0], [100, 65.0]]}, "NE": {"first_land_km": 1, "max_m": 165.0, "max_at_km": 60, "profile": [[1, 4.0], [2, 0.0], [3, 0.0], [5, 5.0], [8, 4.0], [10, 15.0], [15, 24.0], [20, 27.0], [30, 16.0], [40, 27.0], [50, 65.0], [60, 165.0], [70, 101.0], [80, 124.0], [100, 154.0]]}, "ENE": {"first_land_km": 1, "max_m": 582.0, "max_at_km": 80, "profile": [[1, 2.0], [2, 4.0], [3, 14.0], [5, 7.0], [8, 8.0], [10, 8.0], [15, 8.0], [20, 29.0], [30, 26.0], [40, 153.0], [50, 135.0], [60, 302.0], [70, 369.0], [80, 582.0], [100, 438.0]]}, "E": {"first_land_km": 1, "max_m": 1633.0, "max_at_km": 100, "profile": [[1, 19.0], [2, 17.0], [3, 20.0], [5, 8.0], [8, 5.0], [10, 7.0], [15, 9.0], [20, 3.0], [30, 29.0], [40, 89.0], [50, 198.0], [60, 160.0], [70, 275.0], [80, 1220.0], [100, 1633.0]]}, "ESE": {"first_land_km": 1, "max_m": 474.0, "max_at_km": 100, "profile": [[1, 10.0], [2, 7.0], [3, 13.0], [5, 12.0], [8, 5.0], [10, 6.0], [15, 11.0], [20, 17.0], [30, 9.0], [40, 133.0], [50, 193.0], [60, 40.0], [70, 205.0], [80, 217.0], [100, 474.0]]}, "SE": {"first_land_km": 2, "max_m": 244.0, "max_at_km": 100, "profile": [[1, 0.0], [2, 13.0], [3, 4.0], [5, 11.0], [8, 5.0], [10, 19.0], [15, 9.0], [20, 25.0], [30, 34.0], [40, 5.0], [50, 14.0], [60, 82.0], [70, 146.0], [80, 234.0], [100, 244.0]]}, "SSE": {"first_land_km": 8, "max_m": 27.0, "max_at_km": 50, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 11.0], [10, 17.0], [15, 10.0], [20, 1.0], [30, 1.0], [40, 1.0], [50, 27.0], [60, 19.0], [70, 4.0], [80, 14.0], [100, 3.0]]}, "S": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "SSW": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "SW": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "WSW": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "W": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "WNW": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "NW": {"first_land_km": 1, "max_m": 5.0, "max_at_km": 1, "profile": [[1, 5.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}, "NNW": {"first_land_km": null, "max_m": 0.0, "max_at_km": 1, "profile": [[1, 0.0], [2, 0.0], [3, 0.0], [5, 0.0], [8, 0.0], [10, 0.0], [15, 0.0], [20, 0.0], [30, 0.0], [40, 0.0], [50, 0.0], [60, 0.0], [70, 0.0], [80, 0.0], [100, 0.0]]}}};
+const Q = [{"text": "平均10〜12ノット、ガストは20ノット近く", "src": "Yachting Association of Sri Lanka「First Capital Sailing Nationals 2025」（2025年2月25〜26日）", "title": "北東季の晴れの日"}, {"text": "強い風と波立つ海面", "src": "The Morning「Navy Cup Sailing Regatta」（2023年）／ スリランカ海軍ニュース（2024年4月）", "title": "海軍杯"}, {"text": "風が変わり、レースを港の中で行った記録", "src": "Explore Sri Lanka「The Splendid Sport of Yacht Racing」（王立コロンボ・ヨットクラブの歴史）", "title": "港内へ移動"}, {"text": "昼過ぎにはっきりし、夕方に消える。陸上で約4m/s", "src": "コロンボ大学 修士論文「Two dimensional sea breeze & land breeze model with application to Sri Lanka」（2004年）", "title": "海風の時間帯"}];
+const LK = [{"season":"中間①","am":"北","n":57,"ws9":2.3,"dir12":"西北西","ws12":3.5,"dir15":"西北西","ws15":4.6,"top15":"西","top15p":33,"top15b":"西北西","top15bp":23,"shift":-82.0,"right":4.0,"left":95.0,"p4":67,"p7":16},{"season":"中間①","am":"北東","n":53,"ws9":2.6,"dir12":"西北西","ws12":3.2,"dir15":"西","ws15":4.0,"top15":"西","top15p":21,"top15b":"西南西","top15bp":15,"shift":-105.0,"right":25.0,"left":75.0,"p4":51,"p7":4},{"season":"中間①","am":"南","n":139,"ws9":2.9,"dir12":"南西","ws12":3.9,"dir15":"南西","ws15":4.5,"top15":"南西","top15p":41,"top15b":"南南西","top15bp":25,"shift":45.0,"right":93.0,"left":0.0,"p4":66,"p7":2},{"season":"中間①","am":"南東","n":62,"ws9":2.3,"dir12":"南西","ws12":3.9,"dir15":"南西","ws15":4.8,"top15":"南西","top15p":29,"top15b":"西南西","top15bp":23,"shift":80.0,"right":95.0,"left":0.0,"p4":77,"p7":3},{"season":"中間①","am":"南西","n":80,"ws9":3.2,"dir12":"西南西","ws12":4.3,"dir15":"西南西","ws15":4.8,"top15":"西南西","top15p":44,"top15b":"南西","top15bp":31,"shift":12.0,"right":56.0,"left":11.0,"p4":72,"p7":1},{"season":"中間①","am":"弱風","n":142,"ws9":1.1,"dir12":"西","ws12":3.0,"dir15":"西南西","ws15":3.9,"top15":"西","top15p":30,"top15b":"西南西","top15bp":27,"shift":null,"right":null,"left":null,"p4":49,"p7":4},{"season":"中間①","am":"東","n":18,"ws9":2.0,"dir12":"西南西","ws12":3.1,"dir15":"西南西","ws15":4.1,"top15":"西南西","top15p":28,"top15b":"西","top15bp":28,"shift":134.0,"right":83.0,"left":17.0,"p4":56,"p7":6},{"season":"中間①","am":"西","n":45,"ws9":3.7,"dir12":"西","ws12":4.4,"dir15":"西","ws15":5.0,"top15":"西","top15p":49,"top15b":"西南西","top15bp":38,"shift":-4.0,"right":11.0,"left":38.0,"p4":71,"p7":7},{"season":"中間②","am":"北","n":75,"ws9":4.4,"dir12":"北北西","ws12":5.6,"dir15":"北北西","ws15":6.1,"top15":"北北西","top15p":35,"top15b":"北","top15bp":23,"shift":-23.0,"right":11.0,"left":65.0,"p4":76,"p7":39},{"season":"中間②","am":"北東","n":44,"ws9":3.0,"dir12":"北北西","ws12":2.8,"dir15":"北北西","ws15":3.7,"top15":"北","top15p":18,"top15b":"北北東","top15bp":14,"shift":-32.0,"right":25.0,"left":66.0,"p4":45,"p7":14},{"season":"中間②","am":"北西","n":41,"ws9":3.5,"dir12":"西北西","ws12":4.3,"dir15":"西北西","ws15":5.0,"top15":"西北西","top15p":39,"top15b":"北西","top15bp":22,"shift":-24.0,"right":5.0,"left":66.0,"p4":66,"p7":22},{"season":"中間②","am":"南","n":68,"ws9":4.0,"dir12":"南南西","ws12":4.5,"dir15":"南南西","ws15":5.1,"top15":"南南西","top15p":29,"top15b":"南西","top15bp":24,"shift":26.0,"right":79.0,"left":6.0,"p4":68,"p7":16},{"season":"中間②","am":"南東","n":30,"ws9":2.9,"dir12":"南南西","ws12":3.4,"dir15":"南南西","ws15":4.7,"top15":"南南西","top15p":30,"top15b":"西南西","top15bp":20,"shift":70.0,"right":93.0,"left":3.0,"p4":60,"p7":13},{"season":"中間②","am":"南西","n":110,"ws9":4.9,"dir12":"西南西","ws12":5.5,"dir15":"西南西","ws15":5.4,"top15":"西南西","top15p":41,"top15b":"南西","top15bp":35,"shift":9.0,"right":43.0,"left":8.0,"p4":81,"p7":24},{"season":"中間②","am":"弱風","n":98,"ws9":1.0,"dir12":"西","ws12":2.7,"dir15":"西南西","ws15":3.2,"top15":"西","top15p":27,"top15b":"西南西","top15bp":16,"shift":null,"right":null,"left":null,"p4":21,"p7":0},{"season":"中間②","am":"西","n":112,"ws9":5.8,"dir12":"西","ws12":6.1,"dir15":"西","ws15":6.4,"top15":"西","top15p":46,"top15b":"西南西","top15bp":36,"shift":0.0,"right":20.0,"left":23.0,"p4":91,"p7":38},{"season":"北東季","am":"北","n":270,"ws9":6.2,"dir12":"北北西","ws12":6.5,"dir15":"北北西","ws15":7.2,"top15":"北北西","top15p":38,"top15b":"北","top15bp":21,"shift":-38.0,"right":4.0,"left":86.0,"p4":89,"p7":52},{"season":"北東季","am":"北東","n":415,"ws9":4.7,"dir12":"北北西","ws12":3.9,"dir15":"北北西","ws15":5.2,"top15":"北北西","top15p":21,"top15b":"北西","top15bp":17,"shift":-53.0,"right":18.0,"left":76.0,"p4":67,"p7":24},{"season":"北東季","am":"南","n":27,"ws9":3.5,"dir12":"南西","ws12":3.7,"dir15":"南西","ws15":4.2,"top15":"南西","top15p":26,"top15b":"南南西","top15bp":19,"shift":58.0,"right":89.0,"left":0.0,"p4":56,"p7":11},{"season":"北東季","am":"南東","n":19,"ws9":2.2,"dir12":"西南西","ws12":2.8,"dir15":"西南西","ws15":3.6,"top15":"南西","top15p":37,"top15b":"南南西","top15bp":16,"shift":102.0,"right":95.0,"left":5.0,"p4":37,"p7":0},{"season":"北東季","am":"弱風","n":71,"ws9":1.1,"dir12":"西北西","ws12":2.6,"dir15":"西北西","ws15":3.9,"top15":"西","top15p":25,"top15b":"西北西","top15bp":23,"shift":null,"right":null,"left":null,"p4":48,"p7":0},{"season":"北東季","am":"東","n":30,"ws9":2.0,"dir12":"西","ws12":2.9,"dir15":"西北西","ws15":4.2,"top15":"西北西","top15p":27,"top15b":"西","top15bp":13,"shift":-65.0,"right":37.0,"left":63.0,"p4":53,"p7":3},{"season":"南西季","am":"南","n":105,"ws9":4.9,"dir12":"南南西","ws12":5.7,"dir15":"南南西","ws15":6.2,"top15":"南南西","top15p":50,"top15b":"南西","top15bp":30,"shift":20.0,"right":73.0,"left":2.0,"p4":91,"p7":30},{"season":"南西季","am":"南西","n":746,"ws9":6.3,"dir12":"南西","ws12":6.6,"dir15":"南西","ws15":7.0,"top15":"西南西","top15p":49,"top15b":"南西","top15bp":42,"shift":3.0,"right":23.0,"left":11.0,"p4":98,"p7":50},{"season":"南西季","am":"弱風","n":15,"ws9":1.4,"dir12":"西南西","ws12":3.6,"dir15":"西南西","ws15":3.8,"top15":"西南西","top15p":33,"top15b":"南西","top15bp":20,"shift":null,"right":null,"left":null,"p4":40,"p7":7},{"season":"南西季","am":"西","n":639,"ws9":7.1,"dir12":"西南西","ws12":7.2,"dir15":"西南西","ws15":7.4,"top15":"西南西","top15p":64,"top15b":"西","top15bp":30,"shift":-5.0,"right":4.0,"left":29.0,"p4":98,"p7":62}];
+const VF = {"hourly": {"中間①": [{"h": 0, "obs_dir": 134, "obs_ws": 0.5, "mod_dir": 139, "mod_ws": 1.6, "n": 298}, {"h": 1, "obs_dir": 133, "obs_ws": 0.5, "mod_dir": 138, "mod_ws": 1.6, "n": 259}, {"h": 2, "obs_dir": 128, "obs_ws": 0.6, "mod_dir": 133, "mod_ws": 1.6, "n": 253}, {"h": 3, "obs_dir": 124, "obs_ws": 0.6, "mod_dir": 125, "mod_ws": 1.6, "n": 218}, {"h": 4, "obs_dir": 120, "obs_ws": 0.5, "mod_dir": 124, "mod_ws": 1.6, "n": 196}, {"h": 5, "obs_dir": 114, "obs_ws": 0.5, "mod_dir": 113, "mod_ws": 1.6, "n": 167}, {"h": 6, "obs_dir": 108, "obs_ws": 0.5, "mod_dir": 108, "mod_ws": 1.6, "n": 346}, {"h": 7, "obs_dir": 110, "obs_ws": 0.5, "mod_dir": 112, "mod_ws": 1.6, "n": 366}, {"h": 8, "obs_dir": 110, "obs_ws": 0.8, "mod_dir": 144, "mod_ws": 1.6, "n": 427}, {"h": 9, "obs_dir": 164, "obs_ws": 1.1, "mod_dir": 219, "mod_ws": 1.7, "n": 366}, {"h": 10, "obs_dir": 233, "obs_ws": 1.4, "mod_dir": 245, "mod_ws": 2.2, "n": 366}, {"h": 11, "obs_dir": 243, "obs_ws": 1.7, "mod_dir": 252, "mod_ws": 2.7, "n": 427}, {"h": 12, "obs_dir": 246, "obs_ws": 1.8, "mod_dir": 253, "mod_ws": 3.3, "n": 366}, {"h": 13, "obs_dir": 247, "obs_ws": 1.9, "mod_dir": 251, "mod_ws": 3.5, "n": 366}, {"h": 14, "obs_dir": 249, "obs_ws": 2.0, "mod_dir": 248, "mod_ws": 3.4, "n": 427}, {"h": 15, "obs_dir": 248, "obs_ws": 1.9, "mod_dir": 245, "mod_ws": 3.3, "n": 366}, {"h": 16, "obs_dir": 248, "obs_ws": 1.7, "mod_dir": 239, "mod_ws": 2.9, "n": 366}, {"h": 17, "obs_dir": 247, "obs_ws": 1.5, "mod_dir": 240, "mod_ws": 2.5, "n": 427}, {"h": 18, "obs_dir": 242, "obs_ws": 1.3, "mod_dir": 229, "mod_ws": 2.0, "n": 366}, {"h": 19, "obs_dir": 230, "obs_ws": 1.1, "mod_dir": 191, "mod_ws": 1.8, "n": 366}, {"h": 20, "obs_dir": 202, "obs_ws": 0.8, "mod_dir": 165, "mod_ws": 1.7, "n": 427}, {"h": 21, "obs_dir": 192, "obs_ws": 0.7, "mod_dir": 152, "mod_ws": 1.7, "n": 361}, {"h": 22, "obs_dir": 168, "obs_ws": 0.6, "mod_dir": 146, "mod_ws": 1.7, "n": 360}, {"h": 23, "obs_dir": 136, "obs_ws": 0.5, "mod_dir": 143, "mod_ws": 1.6, "n": 356}], "中間②": [{"h": 0, "obs_dir": 200, "obs_ws": 0.7, "mod_dir": 221, "mod_ws": 2.2, "n": 256}, {"h": 1, "obs_dir": 180, "obs_ws": 0.7, "mod_dir": 226, "mod_ws": 2.2, "n": 242}, {"h": 2, "obs_dir": 177, "obs_ws": 0.7, "mod_dir": 228, "mod_ws": 2.3, "n": 221}, {"h": 3, "obs_dir": 184, "obs_ws": 0.7, "mod_dir": 238, "mod_ws": 2.2, "n": 215}, {"h": 4, "obs_dir": 213, "obs_ws": 0.6, "mod_dir": 245, "mod_ws": 2.3, "n": 209}, {"h": 5, "obs_dir": 228, "obs_ws": 0.6, "mod_dir": 257, "mod_ws": 2.4, "n": 201}, {"h": 6, "obs_dir": 152, "obs_ws": 0.6, "mod_dir": 173, "mod_ws": 2.1, "n": 337}, {"h": 7, "obs_dir": 134, "obs_ws": 0.7, "mod_dir": 195, "mod_ws": 2.1, "n": 369}, {"h": 8, "obs_dir": 119, "obs_ws": 0.9, "mod_dir": 242, "mod_ws": 2.4, "n": 366}, {"h": 9, "obs_dir": 230, "obs_ws": 1.1, "mod_dir": 254, "mod_ws": 2.7, "n": 371}, {"h": 10, "obs_dir": 251, "obs_ws": 1.3, "mod_dir": 259, "mod_ws": 3.0, "n": 371}, {"h": 11, "obs_dir": 254, "obs_ws": 1.6, "mod_dir": 262, "mod_ws": 3.4, "n": 371}, {"h": 12, "obs_dir": 257, "obs_ws": 1.6, "mod_dir": 261, "mod_ws": 3.6, "n": 371}, {"h": 13, "obs_dir": 260, "obs_ws": 1.7, "mod_dir": 260, "mod_ws": 3.7, "n": 371}, {"h": 14, "obs_dir": 263, "obs_ws": 1.8, "mod_dir": 259, "mod_ws": 3.7, "n": 371}, {"h": 15, "obs_dir": 257, "obs_ws": 1.6, "mod_dir": 258, "mod_ws": 3.4, "n": 371}, {"h": 16, "obs_dir": 258, "obs_ws": 1.4, "mod_dir": 256, "mod_ws": 3.0, "n": 371}, {"h": 17, "obs_dir": 258, "obs_ws": 1.2, "mod_dir": 262, "mod_ws": 2.3, "n": 371}, {"h": 18, "obs_dir": 255, "obs_ws": 1.0, "mod_dir": 259, "mod_ws": 2.1, "n": 371}, {"h": 19, "obs_dir": 238, "obs_ws": 0.8, "mod_dir": 245, "mod_ws": 2.1, "n": 369}, {"h": 20, "obs_dir": 179, "obs_ws": 0.7, "mod_dir": 242, "mod_ws": 2.1, "n": 330}, {"h": 21, "obs_dir": 180, "obs_ws": 0.7, "mod_dir": 223, "mod_ws": 2.1, "n": 321}, {"h": 22, "obs_dir": 193, "obs_ws": 0.7, "mod_dir": 217, "mod_ws": 2.1, "n": 300}, {"h": 23, "obs_dir": 226, "obs_ws": 0.7, "mod_dir": 221, "mod_ws": 2.2, "n": 254}], "北東季": [{"h": 0, "obs_dir": 46, "obs_ws": 0.9, "mod_dir": 40, "mod_ws": 2.4, "n": 516}, {"h": 1, "obs_dir": 46, "obs_ws": 0.9, "mod_dir": 37, "mod_ws": 2.4, "n": 501}, {"h": 2, "obs_dir": 45, "obs_ws": 1.0, "mod_dir": 34, "mod_ws": 2.5, "n": 501}, {"h": 3, "obs_dir": 45, "obs_ws": 1.0, "mod_dir": 32, "mod_ws": 2.5, "n": 449}, {"h": 4, "obs_dir": 44, "obs_ws": 0.9, "mod_dir": 31, "mod_ws": 2.5, "n": 448}, {"h": 5, "obs_dir": 44, "obs_ws": 0.9, "mod_dir": 30, "mod_ws": 2.6, "n": 466}, {"h": 6, "obs_dir": 48, "obs_ws": 1.0, "mod_dir": 34, "mod_ws": 2.4, "n": 526}, {"h": 7, "obs_dir": 49, "obs_ws": 1.1, "mod_dir": 35, "mod_ws": 2.6, "n": 539}, {"h": 8, "obs_dir": 50, "obs_ws": 1.3, "mod_dir": 32, "mod_ws": 2.6, "n": 571}, {"h": 9, "obs_dir": 43, "obs_ws": 1.4, "mod_dir": 28, "mod_ws": 2.6, "n": 540}, {"h": 10, "obs_dir": 17, "obs_ws": 1.5, "mod_dir": 16, "mod_ws": 2.6, "n": 541}, {"h": 11, "obs_dir": 355, "obs_ws": 1.6, "mod_dir": 355, "mod_ws": 2.7, "n": 572}, {"h": 12, "obs_dir": 339, "obs_ws": 1.7, "mod_dir": 332, "mod_ws": 2.9, "n": 541}, {"h": 13, "obs_dir": 326, "obs_ws": 1.9, "mod_dir": 312, "mod_ws": 3.2, "n": 541}, {"h": 14, "obs_dir": 318, "obs_ws": 2.0, "mod_dir": 302, "mod_ws": 3.3, "n": 572}, {"h": 15, "obs_dir": 324, "obs_ws": 2.0, "mod_dir": 305, "mod_ws": 3.3, "n": 541}, {"h": 16, "obs_dir": 331, "obs_ws": 1.9, "mod_dir": 307, "mod_ws": 3.0, "n": 541}, {"h": 17, "obs_dir": 339, "obs_ws": 1.8, "mod_dir": 322, "mod_ws": 2.8, "n": 572}, {"h": 18, "obs_dir": 351, "obs_ws": 1.6, "mod_dir": 343, "mod_ws": 2.5, "n": 541}, {"h": 19, "obs_dir": 6, "obs_ws": 1.4, "mod_dir": 7, "mod_ws": 2.4, "n": 541}, {"h": 20, "obs_dir": 25, "obs_ws": 1.2, "mod_dir": 26, "mod_ws": 2.3, "n": 569}, {"h": 21, "obs_dir": 32, "obs_ws": 1.2, "mod_dir": 35, "mod_ws": 2.4, "n": 530}, {"h": 22, "obs_dir": 38, "obs_ws": 1.0, "mod_dir": 41, "mod_ws": 2.4, "n": 532}, {"h": 23, "obs_dir": 46, "obs_ws": 0.9, "mod_dir": 41, "mod_ws": 2.4, "n": 542}], "南西季": [{"h": 0, "obs_dir": 227, "obs_ws": 1.1, "mod_dir": 230, "mod_ws": 3.2, "n": 981}, {"h": 1, "obs_dir": 227, "obs_ws": 1.1, "mod_dir": 231, "mod_ws": 3.2, "n": 979}, {"h": 2, "obs_dir": 227, "obs_ws": 1.2, "mod_dir": 233, "mod_ws": 3.2, "n": 1053}, {"h": 3, "obs_dir": 229, "obs_ws": 1.1, "mod_dir": 234, "mod_ws": 3.2, "n": 965}, {"h": 4, "obs_dir": 229, "obs_ws": 1.0, "mod_dir": 235, "mod_ws": 3.1, "n": 957}, {"h": 5, "obs_dir": 230, "obs_ws": 1.0, "mod_dir": 235, "mod_ws": 2.9, "n": 1017}, {"h": 6, "obs_dir": 228, "obs_ws": 1.1, "mod_dir": 234, "mod_ws": 2.9, "n": 1003}, {"h": 7, "obs_dir": 227, "obs_ws": 1.2, "mod_dir": 235, "mod_ws": 3.2, "n": 1014}, {"h": 8, "obs_dir": 226, "obs_ws": 1.4, "mod_dir": 238, "mod_ws": 3.7, "n": 1094}, {"h": 9, "obs_dir": 229, "obs_ws": 1.6, "mod_dir": 241, "mod_ws": 4.0, "n": 1015}, {"h": 10, "obs_dir": 231, "obs_ws": 1.8, "mod_dir": 244, "mod_ws": 4.4, "n": 1015}, {"h": 11, "obs_dir": 232, "obs_ws": 2.0, "mod_dir": 244, "mod_ws": 4.6, "n": 1096}, {"h": 12, "obs_dir": 233, "obs_ws": 2.0, "mod_dir": 246, "mod_ws": 4.8, "n": 1015}, {"h": 13, "obs_dir": 233, "obs_ws": 2.1, "mod_dir": 245, "mod_ws": 4.9, "n": 1016}, {"h": 14, "obs_dir": 233, "obs_ws": 2.1, "mod_dir": 244, "mod_ws": 4.9, "n": 1096}, {"h": 15, "obs_dir": 233, "obs_ws": 2.0, "mod_dir": 243, "mod_ws": 4.7, "n": 1015}, {"h": 16, "obs_dir": 232, "obs_ws": 1.9, "mod_dir": 240, "mod_ws": 4.5, "n": 1015}, {"h": 17, "obs_dir": 230, "obs_ws": 1.8, "mod_dir": 239, "mod_ws": 3.7, "n": 1095}, {"h": 18, "obs_dir": 229, "obs_ws": 1.6, "mod_dir": 234, "mod_ws": 3.1, "n": 1015}, {"h": 19, "obs_dir": 228, "obs_ws": 1.4, "mod_dir": 229, "mod_ws": 3.0, "n": 1014}, {"h": 20, "obs_dir": 227, "obs_ws": 1.3, "mod_dir": 227, "mod_ws": 3.1, "n": 1087}, {"h": 21, "obs_dir": 227, "obs_ws": 1.2, "mod_dir": 226, "mod_ws": 3.0, "n": 1000}, {"h": 22, "obs_dir": 227, "obs_ws": 1.1, "mod_dir": 226, "mod_ws": 3.0, "n": 1000}, {"h": 23, "obs_dir": 226, "obs_ws": 1.1, "mod_dir": 228, "mod_ws": 3.1, "n": 1043}]}, "agree": {"coast": {"n": 2452, "dir_med": 14.0, "within45": 95, "ratio": 1.94}, "main": {"n": 2452, "dir_med": 15.0, "within45": 97, "ratio": 2.93}}};
+const D16=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const J16=["北","北北東","北東","東北東","東","東南東","南東","南南東","南","南南西","南西","西南西","西","西北西","北西","北北西"];
+const jdir = d => J16[Math.round(((d%360)+360)%360/22.5)%16];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tip = document.getElementById('tip');
+function showTip(e, html){ tip.innerHTML = html; tip.hidden = false; const x=Math.min(e.clientX+12, innerWidth-250); tip.style.left=x+'px'; tip.style.top=(e.clientY+12)+'px'; }
+function hideTip(){ tip.hidden = true; }
+const NS='http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){ const n=document.createElementNS(NS,tag); for(const k in attrs) n.setAttribute(k, attrs[k]); if(parent) parent.appendChild(n); return n; }
+const fmt = (x,d=1)=> (x>0?'+':'')+x.toFixed(d);
+
+/* ---------- rules ---------- */
+const e = R.extra, b = R.build, sb = R.seabreeze, fr = R.cooling.front, ev = R.evening, sp = R.speed_day;
+const odo = R.spatial.main;
+const LK9 = (s,a)=>LK.find(r=>r.season===s&&r.am===a);
+const iD = n => D16.indexOf(n);
+const rules = [
+ {when:"南西季（5〜9月）", what:"西南西〜南西のモンスーンが一日中吹く。弱い時間がほとんどない", num:`日中の西南西＋南西 ${(sum(R.rose_day['南西季'].pct[11])+sum(R.rose_day['南西季'].pct[10])).toFixed(0)}%・西南西の平均 ${R.rose_day['南西季'].mean_ws[11]}m/s ／ 8m/s以上 ${sp['南西季'].ge8}%・2m/s未満 ${sp['南西季'].lt2}%`, tags:["model","obs"]},
+ {when:"南西季の朝", what:"朝の風がそのまま午後まで続く。振れは小さく、やや強まる", num:`朝南西：9時 ${LK9('南西季','南西').ws9} → 15時 ${LK9('南西季','南西').ws15}m/s・振れ ${fmt(LK9('南西季','南西').shift,0)}° ／ 朝西：振れ ${fmt(LK9('南西季','西').shift,0)}°`, tags:["model"]},
+ {when:"北東季（12〜2月）の朝", what:"朝は北東の陸風（沖へ吹き出す風）。昼に左へ回って北北西の海風に入れ替わる", num:`朝北東：9→15時 ${fmt(LK9('北東季','北東').shift,0)}°・左振れ ${LK9('北東季','北東').left}% ／ 朝北：${fmt(LK9('北東季','北').shift,0)}°・左振れ ${LK9('北東季','北').left}%。気象台の観測も9時北東→12時北北西→15時北西`, tags:["model","obs"]},
+ {when:"北東季の午後", what:"北北西〜北西の風で、朝が北なら15時に7m/s前後まで上がる", num:`朝北の日：15時 ${LK9('北東季','北').ws15}m/s・7m/s以上 ${LK9('北東季','北').p7}% ／ 吹き上がるのは北北西・北西・北から`, tags:["model"]},
+ {when:"中間期（3〜4月・10〜11月）", what:"モンスーンの切り替わりで一般風が弱く、海陸風が主役になる", num:`3〜4月の日中：2〜4m/s ${sp['中間①']['2to4']}%・8m/s以上 ${sp['中間①'].ge8}% ／ 海風日の多い月：3月 ${sb.by_month['3']}日・4月 ${sb.by_month['4']}日`, tags:["model"]},
+ {when:"穏やかな日（朝の風が弱い日）", what:"9時までは東南東の弱い陸風。10時に一気に西へ反転し、14時が一番強い", num:`14時 約${sb.hourly.find(x=>x.h===14).ws}m/s・${jdir(sb.hourly.find(x=>x.h===14).dir)} ／ 19時ごろまで西〜西南西（${sb.n_days}日の平均）`, tags:["model","exp"]},
+ {when:"中間期で朝が南〜南東の日", what:"午後は右に大きく振れて南西〜西南西になる", num:`3〜4月・朝南東：${fmt(LK9('中間①','南東').shift,0)}°（右振れ ${LK9('中間①','南東').right}%）／ 朝南：${fmt(LK9('中間①','南').shift,0)}°（${LK9('中間①','南').right}%）`, tags:["model"]},
+ {when:"3〜4月で朝が北〜北東の日", what:"左に大きく回って西〜西北西の海風になる", num:`朝北：${fmt(LK9('中間①','北').shift,0)}°（左振れ ${LK9('中間①','北').left}%）／ 朝北東：${fmt(LK9('中間①','北東').shift,0)}°（${LK9('中間①','北東').left}%）`, tags:["model"]},
+ {when:"陸から吹く風（北東・東北東・南東）", what:"沖10kmでも外の5〜6割に弱まり、風の息が強い（ガストが平均の1.7〜2倍）", num:`沖10km：北東 ${odo[2].ratio}・東北東 ${odo[3].ratio}・南東 ${odo[6].ratio} ／ 突風率 北東 ${odo[2].gust_factor}・東北東 ${odo[3].gust_factor}`, tags:["model"]},
+ {when:"海から吹く風（南〜南南西・北西〜北北西）", what:"岸近くでも外とほぼ同じ強さで、息も小さい", num:`沖10km：南 ${odo[8].ratio}・南南西 ${odo[9].ratio}・北西 ${odo[14].ratio} ／ 突風率 1.35前後`, tags:["model"]},
+ {when:"岸寄り（港・市街の前）", what:"陸からの風は外の3割前後まで落ちて、息がさらに強くなる", num:`岸寄りの格子：北東 ${R.spatial.coast[2].ratio}・南東 ${R.spatial.coast[6].ratio}（突風率 ${R.spatial.coast[2].gust_factor}）／ 南南西 ${R.spatial.coast[9].ratio}`, tags:["model"]},
+ {when:"北北西の風", what:"岸に近いほど北西寄り（海側）に曲がって入る", num:`外の風向から：沖10km ${fmt(odo[15].dev,0)}° ・ 岸寄り ${fmt(R.spatial.coast[15].dev,0)}°`, tags:["model"]},
+ {when:"晴れた日の夕方（15→18時）", what:"少し右に振れながら落ちていく", num:`中央値 ${fmt(ev.median_shift,0)}° ・ ${fmt(ev.median_dws)}m/s（${ev.n}日）`, tags:["model"]},
+ {when:"スコールで急に冷えたとき（3時間で3℃以上・気圧上昇）", what:"左に大きく振れることが多い。ただし件数が少ないので参考程度", num:`中央値 ${fmt(fr.median,0)}° ・ 30°以上左 ${fr.pct_left_gt30.toFixed(0)}% ／ ${fmt(fr.ws_change)}m/s（${fr.n}回）`, tags:["model"]},
+];
+function sum(a){ return a.reduce((s,x)=>s+x,0); }
+const tagName={obs:"実測",model:"モデル統計",exp:"経験談"};
+document.getElementById('ruleList').innerHTML = rules.map(r=>`<article class="rule"><div class="when">${r.when}</div><div class="what">${r.what}</div><div class="num">${r.num}</div><div class="tags">${r.tags.map(t=>`<span class="tag ${t}">${tagName[t]}</span>`).join('')}</div></article>`).join('');
+
+/* ---------- wind roses ---------- */
+const SPD=["0-2","2-4","4-6","6-8","8-10","10+"];
+const seqVar=["--r1","--r2","--r3","--r4","--r5","--r6"];
+const seqLight=["#cde2fb","#9ec5f4","#6da7ec","#3987e5","#256abf","#104281"];
+const seqDark=["#1c3550","#184f95","#256abf","#3987e5","#6da7ec","#b7d3f6"];
+function isDark(){ const t=document.documentElement.getAttribute('data-theme'); if(t) return t==='dark'; return matchMedia('(prefers-color-scheme: dark)').matches; }
+function drawRoses(){
+  const seq = isDark()? seqDark: seqLight;
+  const box=document.getElementById('roses'); box.innerHTML='';
+  const maxTot = Math.max(...["北東季","中間①","南西季","中間②"].flatMap(s=>R.rose_day[s].pct.map(sum)));
+  for(const s of ["北東季","中間①","南西季","中間②"]){
+    const rd=R.rose_day[s]; const W=210,C=105,RR=82;
+    const card=document.createElement('div'); card.className='rose-card';
+    const svg=el('svg',{viewBox:`0 0 ${W} ${W}`,width:W,height:W,role:'img','aria-label':`${s}の風配図`});
+    for(const g of [0.33,0.66,1]) el('circle',{cx:C,cy:C,r:RR*g,fill:'none',class:'grid'},svg);
+    const step=Math.ceil(maxTot/3);
+    [1,2,3].forEach(k=>{ const t=el('text',{x:C+3,y:C-RR*k/3+11,'font-size':9},svg); t.textContent=(step*k)+'%'; });
+    rd.pct.forEach((bins,i)=>{
+      let acc=0; const a0=(i*22.5-9)*Math.PI/180, a1=(i*22.5+9)*Math.PI/180;
+      bins.forEach((p,k)=>{
+        if(p<=0) return;
+        const r0=RR*acc/(step*3), r1=RR*(acc+p)/(step*3); acc+=p;
+        const pt=(r,a)=>[C+r*Math.sin(a), C-r*Math.cos(a)];
+        const [x0,y0]=pt(r0,a0),[x1,y1]=pt(r1,a0),[x2,y2]=pt(r1,a1),[x3,y3]=pt(r0,a1);
+        el('path',{d:`M${x0},${y0}L${x1},${y1}A${r1},${r1} 0 0 1 ${x2},${y2}L${x3},${y3}A${r0},${r0} 0 0 0 ${x0},${y0}Z`,fill:seq[k],stroke:css('--surface'),'stroke-width':0.8},svg);
+      });
+      const hit=el('path',{d:(()=>{const pt=(r,a)=>[C+r*Math.sin(a), C-r*Math.cos(a)];const [x1,y1]=pt(RR,a0),[x2,y2]=pt(RR,a1);return `M${C},${C}L${x1},${y1}A${RR},${RR} 0 0 1 ${x2},${y2}Z`})(),fill:'transparent'},svg);
+      hit.addEventListener('mousemove',ev=>showTip(ev,`<b>${s}・${J16[i]}</b><br>${sum(bins).toFixed(1)}% ・ 平均 ${rd.mean_ws[i]}m/s`));
+      hit.addEventListener('mouseleave',hideTip);
+    });
+    [["北",C,12],["東",W-6,C+4],["南",C,W-3],["西",8,C+4]].forEach(([t,x,y])=>{const n=el('text',{x,y,'text-anchor':'middle','font-size':11,'font-weight':700},svg); n.textContent=t;});
+    card.appendChild(svg);
+    const top=rd.pct.map((b,i)=>[i,sum(b)]).sort((a,b)=>b[1]-a[1]).slice(0,2);
+    const cap=document.createElement('div'); cap.className='cap'; cap.innerHTML=`<b>${s}</b>　多いのは ${J16[top[0][0]]} ${top[0][1].toFixed(0)}%・${J16[top[1][0]]} ${top[1][1].toFixed(0)}%`;
+    card.appendChild(cap); box.appendChild(card);
+  }
+  document.getElementById('roseKeys').innerHTML = '風速 m/s：'+SPD.map((l,k)=>`<span class="key"><span class="sw" style="background:${seq[k]}"></span>${l}</span>`).join('');
+}
+
+/* ---------- sea breeze strip ---------- */
+function drawSB(){
+  document.getElementById('sbN').textContent=sb.n_days;
+  const strip=document.getElementById('sbStrip'); strip.innerHTML='';
+  const maxw=Math.max(...sb.hourly.map(x=>x.ws));
+  sb.hourly.forEach(x=>{
+    const c=document.createElement('div'); c.className='cell';
+    const a=(x.dir+180)%360; const L=10+18*x.ws/maxw;
+    c.style.background=`color-mix(in srgb, var(--sea) ${Math.round(8+30*x.ws/maxw)}%, transparent)`;
+    c.innerHTML=`<span class="h">${x.h}時</span><svg width="34" height="44" viewBox="-17 -22 34 44"><g transform="rotate(${a})"><line x1="0" y1="${L/2}" x2="0" y2="${-L/2}" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><path d="M-5,${-L/2+6} L0,${-L/2} L5,${-L/2+6}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span class="v">${x.ws.toFixed(1)}</span>`;
+    c.addEventListener('mousemove',ev=>showTip(ev,`<b>${x.h}時</b><br>${jdir(x.dir)}（${x.dir.toFixed(0)}°）から ${x.ws}m/s<br>向きのそろい具合 ${Math.round(x.R*100)}%`));
+    c.addEventListener('mouseleave',hideTip);
+    strip.appendChild(c);
+  });
+  const h=k=>sb.hourly.find(x=>x.h===k);
+  document.getElementById('sbNote').innerHTML=`<ul class="pts"><li>6〜9時：${jdir(h(8).dir)}の弱い陸風（約${h(8).ws.toFixed(1)}m/s）</li><li>10時：一気に${jdir(h(10).dir)}へ反転して海風</li><li>14時：一番強い（${h(14).ws.toFixed(1)}m/s）。20時ごろ陸風に戻る</li><li>多いのは2〜4月と10〜12月（中間期）</li></ul>`;
+}
+
+/* ---------- shelter bars ---------- */
+function drawShelter(){
+  const svg=document.getElementById('shelterChart'); svg.innerHTML='';
+  const series=[["main","沖10km",'--sea'],["coast","岸寄り（港・市街の前）",'--warm']];
+  document.getElementById('shelterKeys').innerHTML=series.map(s=>`<span class="key"><span class="sw" style="background:var(${s[2]})"></span>${s[1]}</span>`).join('')+'<span class="key" style="color:var(--muted)">外の風（沖50km）＝1.0</span>';
+  const W=900,H=300,L=40,B=40,T=14,Rm=10; svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',W); svg.style.minWidth='640px'; svg.style.width='100%';
+  const pw=(W-L-Rm)/16, y=v=>T+(H-T-B)*(1-v);
+  for(const v of [0,0.25,0.5,0.75,1]){ el('line',{x1:L,x2:W-Rm,y1:y(v),y2:y(v),class:v===0?'ax':'grid'},svg); const t=el('text',{x:L-6,y:y(v)+4,'text-anchor':'end','font-size':11,class:'mono'},svg); t.textContent=v.toFixed(2).replace(/0$/,''); }
+  const bw=(pw-10)/2;
+  D16.forEach((d,i)=>{
+    series.forEach(([k,name,col],j)=>{
+      const r=R.spatial[k][i]; if(!r) return;
+      const x=L+i*pw+4+j*(bw+2), top=y(r.ratio), base=y(0);
+      el('path',{d:`M${x},${base}V${top+4}Q${x},${top} ${x+4},${top}H${x+bw-4}Q${x+bw},${top} ${x+bw},${top+4}V${base}Z`,fill:css(col)},svg);
+    });
+    const hit=el('rect',{x:L+i*pw,y:T,width:pw,height:H-T-B,fill:'transparent'},svg);
+    hit.addEventListener('mousemove',ev=>{const o=R.spatial.main[i],c=R.spatial.coast[i]; if(!o) return;showTip(ev,`<b>外の風：${J16[i]}</b><br>沖10km ${o.ratio}倍・向き ${fmt(o.dev,0)}°・突風率 ${o.gust_factor}<br>岸寄り ${c.ratio}倍・向き ${fmt(c.dev,0)}°・突風率 ${c.gust_factor}<br><span style="opacity:.75">${o.n}時間</span>`)});
+    hit.addEventListener('mouseleave',hideTip);
+    const t=el('text',{x:L+i*pw+pw/2,y:H-B+16,'text-anchor':'middle','font-size':11.5},svg); t.textContent=J16[i];
+  });
+  const t=el('text',{x:L,y:H-6,'font-size':11},svg); t.textContent='外（沖50km）の風向 →　縦軸：沖10kmなどの風速 ÷ 外の風速（日中、外が4m/s以上の時間）';
+}
+
+/* ---------- terrain table ---------- */
+function drawTerrain(){
+  const names={N:"海岸線沿い → ワッタラ・ネゴンボ方面の低地",NNE:"ケラニ川河口・クロウ島 → 内陸の低地",NE:"市街北部 → 低地（60km先で160m程度）",ENE:"市街 → 低地、50km先から丘陵（80km先で約580m）",E:"市街 → 40km先まで平地、80〜100km先に中央高地（1,200〜1,600m）",ESE:"市街 → 低い丘（100km先で約470m）",SE:"デヒワラ〜モラトゥワの低地 → 内陸の丘",SSE:"海岸線沿いの低地（ほぼ海）",S:"インド洋",SSW:"インド洋",SW:"インド洋",WSW:"インド洋",W:"インド洋",WNW:"インド洋",NW:"港の防波堤の先はインド洋",NNW:"インド洋"};
+  const rows=D16.map((d,i)=>{const t=R.terrain[d]; const o=R.spatial.main[i]; return `<tr><td>${J16[i]}</td><td>${names[d]}</td><td class="n">${t.max_m<5?'—':Math.round(t.max_m)+' m'}</td><td class="n">${t.max_m<5?'':t.max_at_km+' km'}</td><td class="n">${o?o.ratio:'—'}</td></tr>`}).join('');
+  document.getElementById('terrainTable').innerHTML=`<thead><tr><th>風が来る方位</th><th>風上にあるもの（100kmまで・地名はおおよそ）</th><th>最高標高</th><th>距離</th><th>沖10kmの風速比</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+/* ---------- build chart ---------- */
+function drawBuild(){
+  document.getElementById('buildN').textContent=b.n;
+  const svg=document.getElementById('buildChart'); svg.innerHTML='';
+  const S=["北東季","中間①","南西季","中間②"]; const W=900,rowH=44,L=64,T=26,H=T+rowH*S.length+30;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.minWidth='640px'; svg.style.width='100%';
+  const pw=(W-L-10)/16; const mx=Math.max(...S.flatMap(s=>b.by_season[s]));
+  D16.forEach((d,i)=>{const t=el('text',{x:L+i*pw+pw/2,y:16,'text-anchor':'middle','font-size':11.5},svg); t.textContent=J16[i];});
+  S.forEach((s,j)=>{
+    const yy=T+j*rowH; const t=el('text',{x:4,y:yy+rowH/2+4,'font-size':13,'font-weight':700},svg); t.textContent=s;
+    el('line',{x1:L,x2:W-10,y1:yy+rowH-2,y2:yy+rowH-2,class:'grid'},svg);
+    b.by_season[s].forEach((p,i)=>{
+      const r=Math.sqrt(p/mx)*18; if(p<=0) return;
+      const c=el('circle',{cx:L+i*pw+pw/2,cy:yy+rowH/2,r:Math.max(r,1.5),fill:css('--sea'),stroke:css('--surface'),'stroke-width':2},svg);
+      if(p>=15){const tx=el('text',{x:L+i*pw+pw/2,y:yy+rowH/2+4,'text-anchor':'middle','font-size':10.5,'font-weight':700},svg); tx.textContent=Math.round(p)+'%'; tx.style.fill='#fff';}
+      const hit=el('rect',{x:L+i*pw,y:yy,width:pw,height:rowH,fill:'transparent'},svg);
+      hit.addEventListener('mousemove',ev=>showTip(ev,`<b>${s}・${J16[i]}</b><br>吹き上がりの ${p.toFixed(1)}%`)); hit.addEventListener('mouseleave',hideTip);
+    });
+  });
+  const t=el('text',{x:L,y:H-8,'font-size':11},svg); t.textContent=`円の大きさ＝その季節の吹き上がりのうち、その方位だった割合。吹き上がり中の振れは中央値 ${fmt(b.shift_median,0)}°（右振れ ${b.pct_right.toFixed(0)}%）`;
+}
+
+/* ---------- quotes ---------- */
+document.getElementById('quotes').innerHTML = Q.map(q=>`<div class="q"><div class="tt">${q.title}</div><div>${q.text}</div><div class="src">${q.src}</div></div>`).join('');
+
+
+/* ---------- lookup ---------- */
+const arrow=(deg,s=22)=>`<svg width="${s}" height="${s}" viewBox="-11 -11 22 22" aria-hidden="true"><g transform="rotate(${(deg+180)%360})"><line x1="0" y1="7" x2="0" y2="-7" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><path d="M-4,-2.5 L0,-7 L4,-2.5" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
+const AM8=["北","北東","東","南東","南","南西","西","北西","弱風"];
+const angOf=n=>J16.indexOf(n)*22.5;
+let curSeason=(()=>{const m=new Date().getMonth()+1;return {12:"北東季",1:"北東季",2:"北東季",3:"中間①",4:"中間①",10:"中間②",11:"中間②"}[m]||"南西季";})();
+try{const s=localStorage.getItem('coSeason'); if(s) curSeason=s;}catch(e){}
+function drawLookup(){
+  const seg=document.getElementById('seasonSeg');
+  seg.innerHTML=["北東季","中間①","南西季","中間②"].map(s=>`<button role="tab" aria-selected="${s===curSeason}" data-s="${s}">${s}</button>`).join('');
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{curSeason=b.dataset.s; try{localStorage.setItem('coSeason',curSeason)}catch(e){} drawLookup();});
+  const rows=AM8.map(a=>LK.find(r=>r.season===curSeason&&r.am===a)).filter(Boolean);
+  const dw=(name,ws)=>`<span class="dw">${arrow(angOf(name))}<span>${name}<br><span class="ws">${ws.toFixed(1)} m/s</span></span></span>`;
+  const body=rows.map(r=>{
+    const am=r.am==="弱風"?`<span class="dw"><span style="width:22px;text-align:center;color:var(--muted)">・</span><span>ほぼ無風<br><span class="ws">${r.ws9.toFixed(1)} m/s</span></span></span>`:`<span class="dw">${arrow(AM8.indexOf(r.am)*45)}<span>${r.am}<br><span class="ws">${r.ws9.toFixed(1)} m/s</span></span></span>`;
+    let sh='<span class="badge z">海風が入る</span>';
+    if(r.shift!==null){
+      const big=Math.abs(r.shift)>=60, dom=Math.max(r.right,r.left);
+      if(r.right>=65) sh=`<span class="badge r">右に ${r.shift}°</span>`;
+      else if(r.left>=65) sh=`<span class="badge l">左に ${Math.abs(r.shift)}°${big?'（北へ）':''}</span>`;
+      else sh=`<span class="badge z">決まった振れなし</span>`;
+      sh+=`<div class="ws" style="margin-top:3px">右 ${r.right}%・左 ${r.left}%</div>`;
+    }
+    return `<tr><td>${am}</td><td>${dw(r.dir12,r.ws12)}</td><td>${dw(r.dir15,r.ws15)}<div class="ws" style="margin-top:2px">多いのは ${r.top15} ${r.top15p}%・${r.top15b} ${r.top15bp}%</div></td><td>${sh}</td><td class="n"><span class="bar" style="width:${Math.round(r.p4*0.6)}px"></span>${r.p4}%</td><td class="n">${r.n}日</td></tr>`;
+  }).join('');
+  document.getElementById('lookupTable').innerHTML=`<thead><tr><th>朝9時</th><th>12時</th><th>15時</th><th>9→15時の振れ</th><th>15時に4m/s以上</th><th>日数</th></tr></thead><tbody>${body}</tbody>`;
+}
+
+/* ---------- model vs station ---------- */
+let chkSeason="北東季";
+function drawCheck(){
+  const seg=document.getElementById('checkSeg');
+  seg.innerHTML=["北東季","中間①","南西季","中間②"].map(s=>`<button role="tab" aria-selected="${s===chkSeason}" data-s="${s}">${s}</button>`).join('');
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{chkSeason=b.dataset.s; drawCheck();});
+  const rows=VF.hourly[chkSeason].filter(r=>r.h>=6&&r.h<=21);
+  const cell=(dir,ws,max)=>{const L=8+16*Math.min(ws/max,1); return `<svg width="30" height="34" viewBox="-15 -17 30 34" aria-hidden="true"><g transform="rotate(${(dir+180)%360})"><line x1="0" y1="${L/2}" x2="0" y2="${-L/2}" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><path d="M-4,${-L/2+5} L0,${-L/2} L4,${-L/2+5}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;};
+  const mo=Math.max(...rows.map(r=>r.obs_ws)), mm=Math.max(...rows.map(r=>r.mod_ws));
+  const line=(lab,f)=>`<tr><th style="white-space:nowrap">${lab}</th>${rows.map(f).join('')}</tr>`;
+  document.getElementById('checkStrip').innerHTML=`<table style="min-width:640px;text-align:center"><tbody>
+   ${line('時刻',r=>`<td class="mono" style="text-align:center;color:var(--muted)">${r.h}</td>`)}
+   ${line('気象台（実測）',r=>`<td style="text-align:center">${cell(r.obs_dir,r.obs_ws,mo)}<div class="ws">${jdir(r.obs_dir)}</div></td>`)}
+   ${line('モデル沿岸格子',r=>`<td style="text-align:center">${cell(r.mod_dir,r.mod_ws,mm)}<div class="ws">${jdir(r.mod_dir)}</div></td>`)}
+  </tbody></table>`;
+  const a=VF.agree.coast;
+  document.getElementById('checkNote').innerHTML=`<ul class="pts"><li>日中${a.n}時間で、風向の${a.within45}%が45°以内（ずれの中央値 ${a.dir_med}°）</li><li>北東季の「朝 北東 → 昼 北北西 → 午後 北西」は、実測もモデルも同じ時刻</li><li>風速は気象台が市街の中なので、モデルの約半分</li></ul>`;
+}
+
+function drawAll(){ drawRoses(); drawSB(); drawShelter(); drawTerrain(); drawBuild(); drawLookup(); drawCheck(); }
+drawAll();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawAll);
+new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>

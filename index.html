@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海面の風帳</title>
+<meta name="description" content="小戸・葉山・江の島・コロンボの海上風の傾向。朝9時の風から午後の風を読む早見表つき。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f8f9; --surface:#ffffff; --ink:#0f1c24; --ink2:#43525c; --muted:#7a8892; --line:#dde4e8; --sea:#2a78d6;
+  --f-body:"Zen Kaku Gothic New",system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1418; --surface:#172027; --ink:#eef2f4; --ink2:#bac6cd; --muted:#87949c; --line:#26323a; --sea:#3987e5; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1418; --surface:#172027; --ink:#eef2f4; --ink2:#bac6cd; --muted:#87949c; --line:#26323a; --sea:#3987e5; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;margin:0}
+.wrap{max-width:880px;margin:0 auto;padding:40px 16px 64px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-size:clamp(28px,5vw,42px);font-weight:900;margin:6px 0 0;line-height:1.3}
+.lede{color:var(--ink2);margin:12px 0 0;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:28px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;color:inherit;text-decoration:none;transition:border-color .15s}
+a.card:hover{border-color:var(--sea)}
+.card .area{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+.card h2{font-size:20px;margin:2px 0 8px}
+.card ul{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14px}
+.how{margin-top:32px;border-top:1px solid var(--line);padding-top:20px;color:var(--ink2);font-size:14px}
+.how ul{margin:6px 0 0;padding-left:1.2em}
+footer{margin-top:28px;color:var(--muted);font-size:12px}
+</style>
+<body>
+<div class="wrap">
+  <div class="eyebrow">SAILING WIND NOTES</div>
+  <h1>海面の風帳</h1>
+  <p class="lede">海の上の風がどっちから強まり、気温が下がるとどう振れ、どこで弱まるか。海域ごとにまとめた。まずは各ページの一番上、「朝9時の風で午後を読む」から。</p>
+
+  <div class="grid">
+    <a class="card" href="odo.html">
+      <div class="area">福岡・博多湾</div>
+      <h2>小戸沖</h2>
+      <ul><li>夏は昼すぎから北の海風</li><li>能古島のブランケット</li></ul>
+    </a>
+    <a class="card" href="hayama.html">
+      <div class="area">神奈川・相模湾</div>
+      <h2>葉山沖</h2>
+      <ul><li>春夏は南南西、秋冬は北北東</li><li>海風は17時が一番強い</li></ul>
+    </a>
+    <a class="card" href="enoshima.html">
+      <div class="area">神奈川・相模湾</div>
+      <h2>江の島沖</h2>
+      <ul><li>海風は午後に右へ約20°</li><li>岸寄りは西風が4割まで落ちる</li></ul>
+    </a>
+    <a class="card" href="colombo.html">
+      <div class="area">スリランカ</div>
+      <h2>コロンボ沖</h2>
+      <ul><li>南西季は一日中 西南西〜南西</li><li>中間期は10時に海風へ反転</li></ul>
+    </a>
+  </div>
+
+  <div class="how">
+    <b>データについて</b>
+    <ul>
+      <li>モデル統計：日本は気象庁MSM（5km）、コロンボはECMWF（9km）の約9年分・毎時</li>
+      <li>実測：アメダス辻堂、コロンボ気象台など</li>
+      <li>経験談：レース記・航海記・五輪の報道を要約</li>
+      <li>数字は傾向。当日の判断は予報と海面を見て</li>
+    </ul>
+  </div>
+  <footer>作成 2026-11 ／ 風向は吹いてくる方向</footer>
+</div>
+</body>
+</html>
